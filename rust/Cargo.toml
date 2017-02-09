@@ -1,0 +1,9 @@
+[package]
+
+name = "algos"
+version = "0.0.1"
+authors = [ "Nam <nambrot@googlemail.com>" ]
+
+[dependencies]
+
+rand="^0.3.0"
