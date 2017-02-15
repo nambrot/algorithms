@@ -1,14 +1,15 @@
 extern crate rand;
 use rand::Rng;
-mod karatsuba;
+mod mergesort;
+
 
 fn main() {
-    let x : usize = rand::thread_rng().gen_range(1, 101000000000);
-    let y : usize = rand::thread_rng().gen_range(1, 101000000000);
+    let arr : Vec<u32> = vec![0; rand::thread_rng().gen_range(1, 10)]
+                .into_iter()
+                .map(|_x| rand::thread_rng().gen_range(1, 100))
+                .collect();
 
-    println!("The product of");
-    println!("x = {}", x);
-    println!("y = {}", y);
-    println!("is x*y    = {}", x * y);
-    println!("karatsuba = {}", karatsuba::mult(x, y))
+    println!("{:?}", arr);
+    println!("{:?}", mergesort::sort(&arr));
+
 }
