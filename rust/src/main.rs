@@ -1,6 +1,6 @@
 extern crate rand;
 use rand::Rng;
-mod mergesort;
+mod inversions;
 
 
 fn main() {
@@ -10,6 +10,6 @@ fn main() {
                 .collect();
 
     println!("{:?}", arr);
-    println!("{:?}", mergesort::sort(&arr));
+    println!("{:?}", inversions::count(&arr));
 
 }
