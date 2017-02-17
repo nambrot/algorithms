@@ -11,30 +11,32 @@ pub fn iter_sort(x: &Vec<u32>) -> Vec<u32> {
     while step < x.len() {
         let base = result.clone();
         result = vec![];
-        let mut i = 0;
-
-        loop {
-
-          if i + step - 1 >= x.len() {
-            let mut rest = x[i..(x.len())].to_vec();
-            result.append(&mut rest);
-            break;
-          }
-
-          let left = base[i..(i + step)].to_vec();
-          let right_boundary = std::cmp::min(x.len(), i + step * 2);
-          let right = base[(i + step)..right_boundary].to_vec();
-          let mut merged = iter_merge(&left, &right);
-          result.append(&mut merged);
-
-          if right_boundary == x.len() {
-            break;
-          }
-          i += step * 2;
-        }
-      step = step * 2;
+        execute_step(&step, &base, &mut result);
+        step = step * 2;
     }
     result
+}
+
+fn execute_step(step: &usize, base: &Vec<u32>, acc: &mut Vec<u32>) {
+    let mut i = 0;
+    loop {
+        if i + step - 1 >= base.len() {
+            let mut rest = base[i..(base.len())].to_vec();
+            acc.append(&mut rest);
+            break;
+        }
+
+        let left = base[i..(i + step)].to_vec();
+        let right_boundary = std::cmp::min(base.len(), i + step * 2);
+        let right = base[(i + step)..right_boundary].to_vec();
+        let mut merged = iter_merge(&left, &right);
+        acc.append(&mut merged);
+
+        if right_boundary == base.len() {
+            break;
+        }
+        i += step * 2;
+    }
 }
 
 pub fn iter_merge(left: &Vec<u32>, right: &Vec<u32>) -> Vec<u32> {
@@ -49,26 +51,26 @@ pub fn iter_merge(left: &Vec<u32>, right: &Vec<u32>) -> Vec<u32> {
 
         if lefti < left.len() && righti < right.len() {
             if left[lefti] < right[righti] {
-              acc.push(left[lefti]);
-              lefti += 1;
-              continue;
+                acc.push(left[lefti]);
+                lefti += 1;
+                continue;
             } else {
-              acc.push(right[righti]);
-              righti += 1;
-              continue;
+                acc.push(right[righti]);
+                righti += 1;
+                continue;
             }
         }
 
         if lefti == left.len() {
-          acc.push(right[righti]);
-          righti += 1;
-          continue;
+            acc.push(right[righti]);
+            righti += 1;
+            continue;
         }
 
         if righti == right.len() {
-          acc.push(left[lefti]);
-          lefti += 1;
-          continue;
+            acc.push(left[lefti]);
+            lefti += 1;
+            continue;
         }
     }
 
