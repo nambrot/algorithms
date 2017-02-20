@@ -3,10 +3,10 @@ use rand::Rng;
 
 pub fn sort(x: &mut Vec<u32>) {
     let end = x.len() - 1;
-    recurse(x, 0, end);
+    sortt(x, 0, end);
 }
 
-fn recurse(x: &mut Vec<u32>, start: usize, end: usize) {
+fn sortt(x: &mut Vec<u32>, start: usize, end: usize) {
     if start == end {
         return;
     }
@@ -15,8 +15,22 @@ fn recurse(x: &mut Vec<u32>, start: usize, end: usize) {
     let pivot = x[pivotpos];
     swap(x, start, pivotpos);
 
+    let j = partition(x, start, end, pivot);
+
+    if j != start {
+        sortt(x, start, j - 1);
+    }
+
+    if j != end {
+        sortt(x, j + 1, end);
+    }
+
+}
+
+fn partition(x: &mut Vec<u32>, start: usize, end: usize, pivot: u32) -> usize {
     let mut i = start; // i-th element has been iterated over
     let mut j = start; // j-th element is <= pivot
+
     loop {
         i += 1;
         if x[i] <= pivot {
@@ -33,21 +47,13 @@ fn recurse(x: &mut Vec<u32>, start: usize, end: usize) {
 
     }
 
-    // Put pivot in the middle
     swap(x, start, j);
     assert!(is_ordered(x, start, j + 1, |&el| el <= pivot),
             "Some elements are not smaller");
     assert!(is_ordered(x, j + 1, i, |&el| el > pivot),
             "Some elements are not bigger");
 
-    if j != start {
-        recurse(x, start, j - 1);
-    }
-
-    if j != end {
-        recurse(x, j + 1, end);
-    }
-
+            j
 }
 
 fn is_ordered<F>(x: &mut Vec<u32>, start: usize, end: usize, func: F) -> bool
