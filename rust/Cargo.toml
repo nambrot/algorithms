@@ -7,3 +7,4 @@ authors = [ "Nam <nambrot@googlemail.com>" ]
 [dependencies]
 
 rand="^0.3.0"
+rayon="^0.6"
