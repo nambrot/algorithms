@@ -1,9 +1,11 @@
 extern crate rand;
 extern crate rayon;
-mod mincut;
-use mincut::Graph;
+extern crate pbr;
+
+mod scc;
+use scc::Graph;
 
 fn main() {
-    let g: Graph = mincut::parse_file("../raws/mincut.txt");
-    println!("{}", mincut::karger(&g));;
+    let g: Graph = scc::parse_file("../raws/scc.txt");
+    println!("{:?}", scc::strongest_connected_components(&g, 10));
 }
