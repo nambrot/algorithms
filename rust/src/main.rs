@@ -1,10 +1,13 @@
 extern crate rand;
 extern crate rayon;
 extern crate pbr;
-
-mod twosum;
-
+use rand::Rng;
+mod quickselect;
+mod median_maintenance;
 fn main() {
-    let numbers = twosum::parse_file("../raws/twosum.txt");
-    println!("{:?}", twosum::number_of_target_values_in(&numbers, -10000, 10000));
+    let mut arr = median_maintenance::parse_file("../raws/num_of_inversions_in_array.txt");
+    let k = rand::thread_rng().gen_range(1, arr.len());
+    println!("{}", quickselect::select(&arr, k));
+    arr.sort();
+    println!("{}", arr[k-1]);
 }
