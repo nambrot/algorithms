@@ -3,11 +3,8 @@ extern crate rayon;
 extern crate pbr;
 use rand::Rng;
 mod quickselect;
-mod median_maintenance;
+mod jobs;
 fn main() {
-    let mut arr = median_maintenance::parse_file("../raws/num_of_inversions_in_array.txt");
-    let k = rand::thread_rng().gen_range(1, arr.len());
-    println!("{}", quickselect::select(&arr, k));
-    arr.sort();
-    println!("{}", arr[k-1]);
+    let mut arr = jobs::parse_file("../raws/greedyjobs.txt");
+    println!("{:?}", jobs::weighted_schedule_completion(&jobs::schedule_jobs(&arr)));
 }
