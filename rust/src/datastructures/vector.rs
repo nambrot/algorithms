@@ -6,6 +6,8 @@ pub struct Vector<T> {
   data: Vec<Option<T>>,
   end_index: usize,
 }
+#[derive(Debug)]
+pub struct ElementDoesNotExistError;
 
 impl<T> Vector<T>
     where T: std::marker::Copy + std::cmp::PartialOrd + std::fmt::Debug
@@ -41,6 +43,16 @@ impl<T> Vector<T>
         Some(item) => item,
         None => panic!("Tried to access item at {}, but no such thing", index)
       }
+    }
+
+    pub fn get_as_result(&self, index: usize) -> Result<T, ElementDoesNotExistError> {
+      if index < self.data.len() {
+        match self.data[index] {
+          Some(item) => Ok(item),
+          None => Err(ElementDoesNotExistError)
+        }
+      } else { Err(ElementDoesNotExistError) }
+
     }
 
     pub fn set(&mut self, index: usize, item: T) {

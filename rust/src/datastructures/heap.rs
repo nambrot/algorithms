@@ -2,6 +2,7 @@ use std;
 extern crate rand;
 use rand::Rng;
 use datastructures::vector::Vector;
+use datastructures;
 use std::cmp::Ordering;
 
 #[derive(Debug)]
@@ -62,26 +63,43 @@ impl<T> Heap<T>
 
     fn balance_down(&mut self, from: usize) {
         // Finding the largest element and balance based upon that
+        struct BalanceCandidate<T> {
+            index: usize,
+            value: Result<T, datastructures::vector::ElementDoesNotExistError>,
+        }
+        struct FilteredBalanceCandidate<T> {
+            index: usize,
+            value: T,
+        }
+
         let mut candidates: Vec<BalanceCandidate<T>> = vec![];
-        candidates.push(BalanceCandidate::Parent { value: self.data.get(from) });
+        candidates.push(BalanceCandidate {
+            index: 0,
+            value: self.data.get_as_result(from),
+        });
+        candidates.push(BalanceCandidate {
+            index: 2 * from + 1,
+            value: self.data.get_as_result(2 * from + 1),
+        });
+        candidates.push(BalanceCandidate {
+            index: 2 * from + 2,
+            value: self.data.get_as_result(2 * from + 2),
+        });
 
-        if 2 * from + 1 < self.data.len() {
-            candidates.push(BalanceCandidate::Child {
-                index: 2 * from + 1,
-                value: self.data.get(2 * from + 1),
-            });
-        }
+        let mut filtered_candidates: Vec<FilteredBalanceCandidate<T>> = candidates.into_iter()
+            .filter_map(|item| match item {
+                BalanceCandidate { value: Ok(val), index } => Some(FilteredBalanceCandidate {
+                    index: index,
+                    value: val,
+                }),
+                _ => None,
+            })
+            .collect();
 
-        if 2 * from + 2 < self.data.len() {
-            candidates.push(BalanceCandidate::Child {
-                index: 2 * from + 2,
-                value: self.data.get(2 * from + 2),
-            });
-        }
+        filtered_candidates.sort_by(|a, b| a.value.cmp(&b.value).reverse());
 
-        candidates.sort();
-        match candidates[0] {
-            BalanceCandidate::Child { index, .. } => {
+        match filtered_candidates[0] {
+            FilteredBalanceCandidate{ index, .. } if index > 0 => {
                 self.swap(from, index);
                 self.balance_down(index);
             }
@@ -168,36 +186,5 @@ fn benchmark_against_the_real_thing() {
                 "implementation is wrong {} {}",
                 real_heap_item,
                 heap_item);
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-enum BalanceCandidate<T> {
-    Parent { value: T },
-    Child { index: usize, value: T },
-}
-
-impl<T> BalanceCandidate<T> {
-    fn value(&self) -> &T {
-        match self {
-            &BalanceCandidate::Parent { ref value } => value,
-            &BalanceCandidate::Child { ref value, .. } => value,
-        }
-    }
-}
-
-impl<T> Ord for BalanceCandidate<T>
-    where T: std::cmp::Eq + std::cmp::Ord
-{
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.value().cmp(&other.value()).reverse()
-    }
-}
-
-impl<T> PartialOrd for BalanceCandidate<T>
-    where T: std::cmp::PartialEq + std::cmp::Ord
-{
-    fn partial_cmp(&self, other: &BalanceCandidate<T>) -> Option<Ordering> {
-        Some(self.value().cmp(&other.value()).reverse())
     }
 }
