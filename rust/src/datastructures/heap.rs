@@ -2,16 +2,17 @@ use std;
 extern crate rand;
 use rand::Rng;
 use datastructures::vector::Vector;
+use std::cmp::Ordering;
 
 #[derive(Debug)]
 pub struct Heap<T>
-    where T: std::marker::Copy + std::cmp::PartialOrd + std::fmt::Debug
+    where T: std::marker::Copy + std::cmp::PartialOrd + std::fmt::Debug + std::cmp::Ord
 {
     pub data: Vector<T>,
 }
 
 impl<T> Heap<T>
-    where T: std::marker::Copy + std::cmp::PartialOrd + std::fmt::Debug
+    where T: std::marker::Copy + std::cmp::PartialOrd + std::fmt::Debug + std::cmp::Ord
 {
     pub fn new() -> Heap<T> {
         Heap { data: Vector::new() }
@@ -36,13 +37,15 @@ impl<T> Heap<T>
     }
 
     fn balance_up(&mut self, child_index: usize) {
-        if child_index != 0 && {
-            let child = self.data.get(child_index);
-            let parent_index = self.parent_from(child_index);
-            if self.data.get(parent_index) < child {
-                self.swap(child_index, parent_index);
-                self.balance_up(parent_index);
-            }
+        if child_index == 0 {
+            return;
+        }
+
+        let child = self.data.get(child_index);
+        let parent_index = self.parent_from(child_index);
+        if self.data.get(parent_index) < child {
+            self.swap(child_index, parent_index);
+            self.balance_up(parent_index);
         }
     }
 
@@ -58,33 +61,29 @@ impl<T> Heap<T>
     }
 
     fn balance_down(&mut self, from: usize) {
-        let parent = self.data.get(from);
-        let first_child = if 2 * from + 1 >= self.data.len() {
-            None
-        } else {
-            Some(self.data.get(2 * from + 1))
-        };
-        let second_child = if 2 * from + 2 >= self.data.len() {
-            None
-        } else {
-            Some(self.data.get(2 * from + 2))
-        };
-        match (first_child, second_child) {
-            (Some(child), Some(child2)) if parent < child && child < child2 => {
-                self.swap(from, 2 * from + 2);
-                self.balance_down(2 * from + 2);
-            }
-            (Some(child), Some(child2)) if parent < child && child > child2 => {
-                self.swap(from, 2 * from + 1);
-                self.balance_down(2 * from + 1);
-            }
-            (Some(child), _) if parent < child => {
-                self.swap(from, 2 * from + 1);
-                self.balance_down(2 * from + 1);
-            }
-            (_, Some(child)) if parent < child => {
-                self.swap(from, 2 * from + 2);
-                self.balance_down(2 * from + 2);
+        // Finding the largest element and balance based upon that
+        let mut candidates: Vec<BalanceCandidate<T>> = vec![];
+        candidates.push(BalanceCandidate::Parent { value: self.data.get(from) });
+
+        if 2 * from + 1 < self.data.len() {
+            candidates.push(BalanceCandidate::Child {
+                index: 2 * from + 1,
+                value: self.data.get(2 * from + 1),
+            });
+        }
+
+        if 2 * from + 2 < self.data.len() {
+            candidates.push(BalanceCandidate::Child {
+                index: 2 * from + 2,
+                value: self.data.get(2 * from + 2),
+            });
+        }
+
+        candidates.sort();
+        match candidates[0] {
+            BalanceCandidate::Child { index, .. } => {
+                self.swap(from, index);
+                self.balance_down(index);
             }
             _ => (),
         }
@@ -169,5 +168,36 @@ fn benchmark_against_the_real_thing() {
                 "implementation is wrong {} {}",
                 real_heap_item,
                 heap_item);
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+enum BalanceCandidate<T> {
+    Parent { value: T },
+    Child { index: usize, value: T },
+}
+
+impl<T> BalanceCandidate<T> {
+    fn value(&self) -> &T {
+        match self {
+            &BalanceCandidate::Parent { ref value } => value,
+            &BalanceCandidate::Child { ref value, .. } => value,
+        }
+    }
+}
+
+impl<T> Ord for BalanceCandidate<T>
+    where T: std::cmp::Eq + std::cmp::Ord
+{
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.value().cmp(&other.value()).reverse()
+    }
+}
+
+impl<T> PartialOrd for BalanceCandidate<T>
+    where T: std::cmp::PartialEq + std::cmp::Ord
+{
+    fn partial_cmp(&self, other: &BalanceCandidate<T>) -> Option<Ordering> {
+        Some(self.value().cmp(&other.value()).reverse())
     }
 }
