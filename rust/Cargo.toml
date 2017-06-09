@@ -8,4 +8,4 @@ authors = [ "Nam <nambrot@googlemail.com>" ]
 
 rand="^0.3.0"
 rayon="^0.6"
-pbr = "1.0.0-alpha.2"
+pbr = "1.0.0"
