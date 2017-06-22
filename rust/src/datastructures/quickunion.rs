@@ -1,6 +1,7 @@
 use std;
 use datastructures::vector::Vector;
 
+#[derive(Debug)]
 pub struct Quickunion {
     data: Vector<usize>,
 }
@@ -28,7 +29,8 @@ impl Quickunion {
 
     pub fn union(&mut self, a: usize, b: usize) {
         let root = self.find(a);
-        self.data.set(b, root);
+        let old_root = self.find(b);
+        self.data.set(old_root, root);
     }
 
     pub fn connected(&self, a: usize, b: usize) -> bool {
@@ -66,11 +68,22 @@ fn can_union_deep() {
     assert!(!q.connected(1, 9));
     q.union(1, 2);
     q.union(8, 9);
-    q.union(2, 3);
+    q.union(3, 2);
     q.union(6, 7);
     q.union(3, 4);
-    q.union(5, 6);
+    q.union(6, 5);
     q.union(4, 5);
     q.union(7, 8);
     assert!(q.connected(1, 9));
+}
+
+#[test]
+fn can_union_within_the_tree() {
+    let mut q = Quickunion::new(10);
+    assert!(!q.connected(1, 9));
+    q.union(1, 3);
+    q.union(3, 6);
+    // no overwrite 6's root
+    q.union(2, 6);
+    assert!(q.connected(1, 6))
 }
