@@ -93,7 +93,7 @@ view model =
         , h3 []
             [ text <| "Are " ++ toString model.a ++ " and " ++ toString model.b ++ " connected?" ]
         , p []
-          [ text <| toString <| connected model.data model.a model.b]
+            [ text <| toString <| connected model.data model.a model.b ]
         , h3 []
             [ text "Or connect them now" ]
         , p []
@@ -119,15 +119,38 @@ subscriptions model =
     Sub.none
 
 
+find : UnionFind -> Int -> Int
+find data a =
+    case Array.get a data of
+        Just b ->
+            if a == b then
+                a
+            else
+                find data b
+
+        _ ->
+            0
+
+
 connected : UnionFind -> Int -> Int -> Bool
 connected data a b =
-  case (Array.get a data, Array.get b data) of
-    (Just c, Just d) -> c == d
-    _ -> False
+    find data a == find data b
+
 
 union : UnionFind -> Int -> Int -> UnionFind
 union data a b =
-  Array.map (\n -> if n == b then a else n) data
+    let
+        parent =
+            Array.get b data |> Maybe.withDefault 0
+
+        newRoot =
+            find data a
+    in
+    if parent == b then
+        Array.set b newRoot data
+    else
+        union data a parent |> Array.set b newRoot
+
 
 tdToHtml : Int -> Html msg
 tdToHtml =
