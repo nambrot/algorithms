@@ -2,9 +2,9 @@ use std;
 
 #[derive(Debug)]
 pub struct Vector<T> {
-  // Couldn't really figure out the easiest solution for dynamic (runtime) fixed size arrays
-  data: Vec<Option<T>>,
-  end_index: usize,
+    // Couldn't really figure out the easiest solution for dynamic (runtime) fixed size arrays
+    data: Vec<Option<T>>,
+    end_index: usize,
 }
 #[derive(Debug)]
 pub struct ElementDoesNotExistError;
@@ -13,17 +13,20 @@ impl<T> Vector<T>
     where T: std::marker::Copy + std::cmp::PartialOrd + std::fmt::Debug
 {
     pub fn new() -> Vector<T> {
-        Vector { data: vec![None; 20], end_index: 0 }
+        Vector {
+            data: vec![None; 20],
+            end_index: 0,
+        }
     }
 
     pub fn push(&mut self, item: T) {
         if self.end_index >= self.data.len() {
-          // Here is where you usually
-          let mut new_data = vec![None; self.data.len() * 2];
-          for i in 0..(self.data.len()) {
-            new_data[i] = self.data[i];
-          }
-          self.data = new_data;
+            // Here is where you usually
+            let mut new_data = vec![None; self.data.len() * 2];
+            for i in 0..(self.data.len()) {
+                new_data[i] = self.data[i];
+            }
+            self.data = new_data;
         }
 
         self.data[self.end_index] = Some(item);
@@ -31,40 +34,42 @@ impl<T> Vector<T>
     }
 
     pub fn pop_from_end(&mut self) -> T {
-      let new_end_index = self.end_index - 1;
-      self.end_index = new_end_index;
-      let item = self.get(self.end_index);
-      self.unset(new_end_index);
-      item
+        let new_end_index = self.end_index - 1;
+        self.end_index = new_end_index;
+        let item = self.get(self.end_index);
+        self.unset(new_end_index);
+        item
     }
 
     pub fn get(&self, index: usize) -> T {
-      match self.data[index] {
-        Some(item) => item,
-        None => panic!("Tried to access item at {}, but no such thing", index)
-      }
+        match self.data[index] {
+            Some(item) => item,
+            None => panic!("Tried to access item at {}, but no such thing", index),
+        }
     }
 
     pub fn get_as_result(&self, index: usize) -> Result<T, ElementDoesNotExistError> {
-      if index < self.data.len() {
-        match self.data[index] {
-          Some(item) => Ok(item),
-          None => Err(ElementDoesNotExistError)
+        if index < self.data.len() {
+            match self.data[index] {
+                Some(item) => Ok(item),
+                None => Err(ElementDoesNotExistError),
+            }
+        } else {
+            Err(ElementDoesNotExistError)
         }
-      } else { Err(ElementDoesNotExistError) }
 
     }
 
     pub fn set(&mut self, index: usize, item: T) {
-      self.data[index] = Some(item);
+        self.data[index] = Some(item);
     }
 
     pub fn unset(&mut self, index: usize) {
-      self.data[index] = None;
+        self.data[index] = None;
     }
 
     pub fn len(&self) -> usize {
-      self.end_index
+        self.end_index
     }
 }
 
@@ -87,8 +92,7 @@ fn can_set() {
 fn can_grow() {
     let mut vector: Vector<usize> = Vector::new();
     for i in 0..100 {
-      vector.push(i);
-      assert!(vector.get(i) == i, "didnt correctly push and grow");
+        vector.push(i);
+        assert!(vector.get(i) == i, "didnt correctly push and grow");
     }
 }
-

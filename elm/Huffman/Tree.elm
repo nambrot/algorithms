@@ -12,7 +12,8 @@ type Tree
 
 
 toTree : Huffman.CharacterDistribution.Distribution -> Tree
-toTree = Dict.toList >> List.map (uncurry <| flip TreeLeaf) >> sort >> toTreeH
+toTree =
+    Dict.toList >> List.map (uncurry <| flip TreeLeaf) >> sort >> toTreeH
 
 
 safeDecode : String -> Tree -> String
@@ -26,16 +27,17 @@ safeDecode string tree =
 
 
 decode : String -> Tree -> Result String String
-decode string tree = decodeH string tree tree
+decode string tree =
+    decodeH string tree tree
 
 
 decodeH : String -> Tree -> Tree -> Result String String
 decodeH string root tree =
-    case ( tree, String.uncons(string) ) of
-        ( TreeBranch _ left _, Just ('0', tail) ) ->
+    case ( tree, String.uncons string ) of
+        ( TreeBranch _ left _, Just ( '0', tail ) ) ->
             decodeH tail root left
 
-        ( TreeBranch _ _ right, Just ('1', tail) ) ->
+        ( TreeBranch _ _ right, Just ( '1', tail ) ) ->
             decodeH tail root right
 
         ( TreeLeaf _ leafChar, Nothing ) ->
@@ -49,7 +51,8 @@ decodeH string root tree =
 
 
 sort : List Tree -> List Tree
-sort = List.sortBy probability
+sort =
+    List.sortBy probability
 
 
 probability : Tree -> Int

@@ -169,6 +169,21 @@ fn balances_down_correctly() {
 }
 
 #[test]
+fn balances_down_deeply() {
+    let mut heap: Heap<usize> = Heap::new();
+    heap.push(41);
+    heap.push(11);
+    heap.push(12);
+    heap.push(0);
+    heap.push(7);
+    heap.push(5);
+    heap.push(6);
+    heap.pop();
+    assert!(heap.pop() == 12, "balanced to the right child");
+    assert!(heap.pop() == 11, "balanced to the right child");
+}
+
+#[test]
 fn benchmark_against_the_real_thing() {
     let mut real_heap: std::collections::BinaryHeap<usize> = std::collections::BinaryHeap::new();
     let mut heap: Heap<usize> = Heap::new();
